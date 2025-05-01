@@ -13,9 +13,9 @@ export const checkApiKey = async (
   return new Promise((resolve) => {
     setTimeout(() => {
       // For demo purposes, alternate between valid and invalid
-      const newStatus = Math.random() > 0.5 ? "valid" : "invalid";
+      const newStatus: ApiKey["status"] = Math.random() > 0.5 ? "valid" : "invalid";
       
-      const updatedKey = { 
+      const updatedKey: ApiKey = { 
         ...apiKey, 
         status: newStatus, 
         lastChecked: new Date() 
@@ -46,10 +46,10 @@ export const refreshApiKey = async (
     setTimeout(() => {
       const refreshedKeyValue = `refreshed_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
       
-      const updatedKey = { 
+      const updatedKey: ApiKey = { 
         ...apiKey, 
         key: refreshedKeyValue,
-        status: "valid", 
+        status: "valid" as ApiKey["status"], 
         lastChecked: new Date() 
       };
       
