@@ -61,10 +61,10 @@ export const useActionHandler = ({
           // Simulate deep research
           await new Promise(resolve => setTimeout(resolve, 3000));
           
-          // Update with deep research results
-          setModelResponse(prevResponse => 
-            `${prevResponse}\n\nDEEP RESEARCH RESULTS: Additional detailed information based on your query about "${originalQuery}".`
-          );
+          // Fix: Update with deep research results - replacing function with direct string value
+          const updatedResponse = `${originalQuery}\n\nDEEP RESEARCH RESULTS: Additional detailed information based on your query about "${originalQuery}".`;
+          setModelResponse(updatedResponse);
+          
           setSummaryPoints([
             'Deep research finding 1: More detailed analysis on the topic.',
             'Deep research finding 2: Additional expert perspectives on this subject.',

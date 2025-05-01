@@ -50,10 +50,10 @@ export const useDeepResearch = ({
       // Simulate deep research with the selected model
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Update with deep research results specifically mentioning it's from the selected model
-      setModelResponse(prevResponse => 
-        `${prevResponse}\n\nDEEP RESEARCH RESULTS FROM ${selectedModel.toUpperCase()}: Additional detailed information based on your query about "${originalQuery}".`
-      );
+      // Fix: Update with deep research results - replacing function with direct string value
+      const enhancedResponse = `${modelResponse}\n\nDEEP RESEARCH RESULTS FROM ${selectedModel.toUpperCase()}: Additional detailed information based on your query about "${originalQuery}".`;
+      setModelResponse(enhancedResponse);
+      
       setSummaryPoints([
         `${selectedModel} deep research finding 1: More detailed analysis on the topic.`,
         `${selectedModel} deep research finding 2: Additional expert perspectives on this subject.`,
