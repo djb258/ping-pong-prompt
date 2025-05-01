@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Check, X, Info } from "lucide-react";
+import { Check, X, Info, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
 
 type ApiKey = {
   id: string;
@@ -79,6 +80,36 @@ const Software = () => {
     }, 1500);
   };
 
+  const refreshApiKey = async (id: string) => {
+    // Find the key to refresh
+    const keyToRefresh = apiKeys.find(key => key.id === id);
+    if (!keyToRefresh) return;
+    
+    // Update status to checking
+    setApiKeys(apiKeys.map(key => 
+      key.id === id ? { ...key, status: "checking" } : key
+    ));
+
+    // Simulate API refresh with a delay
+    setTimeout(() => {
+      const refreshedKeyValue = `refreshed_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+      
+      setApiKeys(apiKeys.map(key => 
+        key.id === id ? { 
+          ...key, 
+          key: refreshedKeyValue,
+          status: "valid", 
+          lastChecked: new Date() 
+        } : key
+      ));
+
+      toast({
+        title: "API Key Refreshed",
+        description: `${keyToRefresh.name} has been refreshed successfully`,
+      });
+    }, 1500);
+  };
+
   const removeApiKey = (id: string) => {
     const keyToRemove = apiKeys.find(key => key.id === id);
     if (!keyToRemove) return;
@@ -110,91 +141,103 @@ const Software = () => {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Software API Keys</h1>
-      
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add New API Key</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="keyName">API Key Name</Label>
-              <Input 
-                id="keyName" 
-                placeholder="Enter API key name (e.g., OpenAI, Perplexity)" 
-                value={newKeyName}
-                onChange={(e) => setNewKeyName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="keyValue">API Key Value</Label>
-              <Input 
-                id="keyValue" 
-                placeholder="Enter your API key here" 
-                type="password"
-                value={newKeyValue}
-                onChange={(e) => setNewKeyValue(e.target.value)}
-              />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button onClick={addApiKey}>Add API Key</Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Your API Keys</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {apiKeys.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                No API keys added yet
+    <div className="min-h-screen">
+      <Navbar />
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-6">Software API Keys</h1>
+        
+        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New API Key</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="keyName">API Key Name</Label>
+                <Input 
+                  id="keyName" 
+                  placeholder="Enter API key name (e.g., OpenAI, Perplexity)" 
+                  value={newKeyName}
+                  onChange={(e) => setNewKeyName(e.target.value)}
+                />
               </div>
-            ) : (
-              <div className="space-y-4">
-                {apiKeys.map((key) => (
-                  <div key={key.id} className="border rounded-md p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">{key.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {key.key.substring(0, 3)}...{key.key.substring(key.key.length - 3)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Last checked: {formatDate(key.lastChecked)}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="flex items-center space-x-1">
-                          {getStatusIcon(key.status)}
-                          <span className="text-sm capitalize">{key.status}</span>
+              <div className="space-y-2">
+                <Label htmlFor="keyValue">API Key Value</Label>
+                <Input 
+                  id="keyValue" 
+                  placeholder="Enter your API key here" 
+                  type="password"
+                  value={newKeyValue}
+                  onChange={(e) => setNewKeyValue(e.target.value)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={addApiKey}>Add API Key</Button>
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Your API Keys</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {apiKeys.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  No API keys added yet
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {apiKeys.map((key) => (
+                    <div key={key.id} className="border rounded-md p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-medium">{key.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {key.key.substring(0, 3)}...{key.key.substring(key.key.length - 3)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Last checked: {formatDate(key.lastChecked)}
+                          </p>
                         </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => checkApiKey(key.id)}
-                          disabled={key.status === "checking"}
-                        >
-                          {key.status === "checking" ? "Checking..." : "Check"}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => removeApiKey(key.id)}
-                        >
-                          Remove
-                        </Button>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1">
+                            {getStatusIcon(key.status)}
+                            <span className="text-sm capitalize">{key.status}</span>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => checkApiKey(key.id)}
+                            disabled={key.status === "checking"}
+                          >
+                            {key.status === "checking" ? "Checking..." : "Check"}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => refreshApiKey(key.id)}
+                            disabled={key.status === "checking"}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-1" />
+                            Refresh
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => removeApiKey(key.id)}
+                          >
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
