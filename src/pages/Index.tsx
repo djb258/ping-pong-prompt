@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Search, ArrowRight, MessageSquare, Bot } from "lucide-react";
+import { Search, ArrowRight, MessageSquare, Bot, Database } from "lucide-react";
 import { ModelResponse } from "@/components/ModelResponse";
 import { useAIOrchestrator } from "@/hooks/use-ai-orchestrator";
 import { 
@@ -18,6 +18,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ActionOptions } from "@/components/ActionOptions";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
@@ -29,6 +30,7 @@ const Index = () => {
     summaryPoints,
     tacticalSummary,
     processQuery,
+    handleDeepResearch,
     handleActionSelection,
     availableModels,
   } = useAIOrchestrator();
@@ -55,6 +57,23 @@ const Index = () => {
     // Process the query using the AI Orchestrator with the selected model
     processQuery(prompt, selectedModel);
     toast.success(`Processing your prompt through ChatGPT and ${selectedModel}...`);
+  };
+
+  const handleDeepResearchClick = () => {
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt first");
+      return;
+    }
+    
+    // If no response yet, do a regular query first
+    if (processingStage === 'idle') {
+      processQuery(prompt, selectedModel);
+      toast.success(`First processing your prompt with ${selectedModel}, then performing deep research...`);
+      setTimeout(() => handleDeepResearch(selectedModel), 3000); // Wait for initial processing
+    } else {
+      // If we already have a response, go straight to deep research
+      handleDeepResearch(selectedModel);
+    }
   };
 
   return (
@@ -140,7 +159,7 @@ const Index = () => {
                 </RadioGroup>
               </div>
               
-              <div className="flex space-x-4">
+              <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
                 <Button type="submit" className="flex-1">
                   <Search className="mr-2 h-4 w-4" />
                   Submit Prompt
@@ -154,6 +173,16 @@ const Index = () => {
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Ping-Pong AI
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={handleDeepResearchClick} 
+                  variant="outline" 
+                  className="flex-1"
+                  disabled={loading || (!availableModels[selectedModel])}
+                >
+                  <Database className="mr-2 h-4 w-4" />
+                  Deep Research
                 </Button>
               </div>
             </form>
@@ -169,48 +198,7 @@ const Index = () => {
             />
             
             {processingStage === 'responseReceived' && (
-              <Card className="mb-6">
-                <CardContent className="pt-6">
-                  <h3 className="font-medium mb-4">Next Actions:</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => handleActionSelection('refine')}
-                      disabled={loading}
-                    >
-                      Refine Prompt
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => handleActionSelection('goDeep')}
-                      disabled={loading}
-                    >
-                      Go Deeper
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => handleActionSelection('sendToGemini')}
-                      disabled={loading}
-                    >
-                      Send to Gemini
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => handleActionSelection('sendToNick')}
-                      disabled={loading}
-                    >
-                      Send to Nick
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => handleActionSelection('email')}
-                      disabled={loading}
-                    >
-                      Email Summary
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <ActionOptions onActionSelect={handleActionSelection} />
             )}
           </div>
         )}
