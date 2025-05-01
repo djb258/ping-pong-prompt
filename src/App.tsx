@@ -10,19 +10,28 @@ import Software from "./pages/Software";
 
 const queryClient = new QueryClient();
 
+// Create a functional component for the app routes to ensure proper React context nesting
+const AppRoutes = () => {
+  return (
+    <>
+      <Toaster />
+      <Sonner />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/software" element={<Software />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
+  );
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/software" element={<Software />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>
