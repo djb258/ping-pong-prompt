@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Search, ArrowRight, MessageSquare } from "lucide-react";
+import { Search, ArrowRight, MessageSquare, Bot } from "lucide-react";
 import { ModelResponse } from "@/components/ModelResponse";
 import { useAIOrchestrator } from "@/hooks/use-ai-orchestrator";
 
@@ -53,6 +52,34 @@ const Index = () => {
         <p className="mt-4">
           This application helps manage prompts, route them through AI models, and provide structured responses.
         </p>
+        
+        {/* AI Models Information Card */}
+        <Card className="mt-6 max-w-2xl mx-auto bg-slate-50">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Bot className="mr-2 h-5 w-5" />
+              AI Models
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm mb-3">
+              This application uses multiple AI models for prompt processing and refinement:
+            </p>
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 p-2 border rounded bg-white">
+                <div className="font-medium">ChatGPT</div>
+                <div className="text-sm text-gray-600">Initial prompt processing and final summary generation</div>
+              </div>
+              <div className="flex items-start gap-2 p-2 border rounded bg-white">
+                <div className="font-medium">Perplexity</div>
+                <div className="text-sm text-gray-600">Deep research and additional context gathering</div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                The Ping-Pong feature routes your prompt through these models to provide comprehensive responses
+              </p>
+            </div>
+          </CardContent>
+        </Card>
         
         <Card className="mt-8 max-w-2xl mx-auto">
           <CardHeader>
