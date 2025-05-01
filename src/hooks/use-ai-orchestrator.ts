@@ -15,7 +15,7 @@ export const useAIOrchestrator = () => {
   const [summaryPoints, setSummaryPoints] = useState<string[]>([]);
   const [tacticalSummary, setTacticalSummary] = useState('');
   const [availableModels, setAvailableModels] = useState<ModelAvailability>({
-    chatgpt: false,
+    chatgpt: false, // Changed to false to properly reflect the initial disconnected state
     perplexity: false,
     claude: false,
     gemini: false,
@@ -27,9 +27,10 @@ export const useAIOrchestrator = () => {
     // Simulate retrieving and checking API keys
     const checkApiKeys = async () => {
       // This would actually fetch from localStorage, API, or context in a real app
+      // Changed to show all services as initially disconnected until API keys are added
       const mockApiStatus = {
-        chatgpt: true, // ChatGPT is always available in this mock
-        perplexity: true,
+        chatgpt: false, // Changed to false to show as disconnected
+        perplexity: false,
         claude: false, 
         gemini: false,
       };
