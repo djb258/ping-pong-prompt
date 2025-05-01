@@ -1,9 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { ApiKey } from '@/types/api-key';
 
 type ProcessingStage = 'idle' | 'initial' | 'responseReceived' | 'deepResearch' | 'operational';
 type ActionType = 'refine' | 'sendToGemini' | 'goDeep' | 'sendToNick' | 'email';
+type ModelAvailability = Record<string, boolean>;
 
 export const useAIOrchestrator = () => {
   const [loading, setLoading] = useState(false);
@@ -12,9 +14,33 @@ export const useAIOrchestrator = () => {
   const [modelResponse, setModelResponse] = useState('');
   const [summaryPoints, setSummaryPoints] = useState<string[]>([]);
   const [tacticalSummary, setTacticalSummary] = useState('');
+  const [availableModels, setAvailableModels] = useState<ModelAvailability>({
+    chatgpt: false,
+    perplexity: false,
+    claude: false,
+    gemini: false,
+  });
   const { toast } = useToast();
 
-  const processQuery = async (query: string) => {
+  // Load API keys on mount - in a real app, this would check stored API keys
+  useEffect(() => {
+    // Simulate retrieving and checking API keys
+    const checkApiKeys = async () => {
+      // This would actually fetch from localStorage, API, or context in a real app
+      const mockApiStatus = {
+        chatgpt: true, // ChatGPT is always available in this mock
+        perplexity: true,
+        claude: false, 
+        gemini: false,
+      };
+      
+      setAvailableModels(mockApiStatus);
+    };
+    
+    checkApiKeys();
+  }, []);
+
+  const processQuery = async (query: string, selectedModel: string = 'perplexity') => {
     // Reset state
     setModelResponse('');
     setSummaryPoints([]);
@@ -32,17 +58,17 @@ export const useAIOrchestrator = () => {
       // For now, simulate a delay before receiving a response
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Simulate receiving a model response
-      const simulatedResponse = `This is a simulated response to your query: "${query}". In a real implementation, this would be the response from Claude or Perplexity.`;
+      // Simulate receiving a model response with the selected model name
+      const simulatedResponse = `This is a simulated response to your query: "${query}" using ChatGPT and ${selectedModel}. In a real implementation, this would be the response from the selected AI models.`;
       
       // Process the model response
       setModelResponse(simulatedResponse);
       setSummaryPoints([
-        'This is the first key point extracted from the response.',
-        'This is the second key point from the AI analysis.',
-        'This is the third key point summarizing important information.'
+        `This is the first key point extracted from the ${selectedModel} response.`,
+        `This is the second key point from the AI analysis using ${selectedModel}.`,
+        `This is the third key point summarizing important information from ${selectedModel}.`
       ]);
-      setTacticalSummary('This is a tactical summary of the response, offering structured next steps based on the AI model output.');
+      setTacticalSummary(`This is a tactical summary of the response from ${selectedModel}, offering structured next steps based on the AI model output.`);
       
       // Update the processing stage
       setProcessingStage('responseReceived');
@@ -166,5 +192,6 @@ export const useAIOrchestrator = () => {
     tacticalSummary,
     processQuery,
     handleActionSelection,
+    availableModels,
   };
 };

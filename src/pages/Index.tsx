@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
@@ -7,9 +8,20 @@ import { toast } from "sonner";
 import { Search, ArrowRight, MessageSquare, Bot } from "lucide-react";
 import { ModelResponse } from "@/components/ModelResponse";
 import { useAIOrchestrator } from "@/hooks/use-ai-orchestrator";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState("perplexity");
   const {
     loading,
     processingStage,
@@ -18,6 +30,7 @@ const Index = () => {
     tacticalSummary,
     processQuery,
     handleActionSelection,
+    availableModels,
   } = useAIOrchestrator();
   
   const handleSubmitPrompt = (e: React.FormEvent) => {
@@ -39,9 +52,9 @@ const Index = () => {
       return;
     }
     
-    // Process the query using the AI Orchestrator
-    processQuery(prompt);
-    toast.success("Processing your prompt through AI models...");
+    // Process the query using the AI Orchestrator with the selected model
+    processQuery(prompt, selectedModel);
+    toast.success(`Processing your prompt through ChatGPT and ${selectedModel}...`);
   };
 
   return (
@@ -66,16 +79,28 @@ const Index = () => {
               This application uses multiple AI models for prompt processing and refinement:
             </p>
             <div className="space-y-2">
-              <div className="flex items-start gap-2 p-2 border rounded bg-white">
-                <div className="font-medium">ChatGPT</div>
-                <div className="text-sm text-gray-600">Initial prompt processing and final summary generation</div>
+              <div className="flex items-center justify-between gap-2 p-2 border rounded bg-white">
+                <div className="flex items-center gap-2">
+                  <div className="font-medium">ChatGPT</div>
+                  <div className="text-sm text-gray-600">Initial prompt processing and final summary generation</div>
+                </div>
+                <Badge variant={availableModels.chatgpt ? "success" : "destructive"} className="ml-auto">
+                  {availableModels.chatgpt ? "Connected" : "Not Connected"}
+                </Badge>
               </div>
-              <div className="flex items-start gap-2 p-2 border rounded bg-white">
-                <div className="font-medium">Perplexity</div>
-                <div className="text-sm text-gray-600">Deep research and additional context gathering</div>
-              </div>
+              {Object.entries(availableModels).filter(([key]) => key !== "chatgpt").map(([key, isAvailable]) => (
+                <div key={key} className="flex items-center justify-between gap-2 p-2 border rounded bg-white">
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium capitalize">{key}</div>
+                    <div className="text-sm text-gray-600">Deep research and additional context gathering</div>
+                  </div>
+                  <Badge variant={isAvailable ? "success" : "destructive"} className="ml-auto">
+                    {isAvailable ? "Connected" : "Not Connected"}
+                  </Badge>
+                </div>
+              ))}
               <p className="text-xs text-gray-500 mt-2">
-                The Ping-Pong feature routes your prompt through these models to provide comprehensive responses
+                The Ping-Pong feature routes your prompt through ChatGPT and your selected model to provide comprehensive responses
               </p>
             </div>
           </CardContent>
@@ -95,6 +120,26 @@ const Index = () => {
                   className="flex-1"
                 />
               </div>
+              
+              <div className="bg-slate-50 p-4 rounded-md">
+                <h3 className="text-sm font-medium mb-3">Select Secondary AI Model</h3>
+                <RadioGroup 
+                  value={selectedModel} 
+                  onValueChange={setSelectedModel}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                >
+                  {Object.entries(availableModels).filter(([key]) => key !== "chatgpt").map(([key, isAvailable]) => (
+                    <div key={key} className="flex items-center space-x-2">
+                      <RadioGroupItem value={key} id={key} disabled={!isAvailable} />
+                      <Label htmlFor={key} className="capitalize flex items-center gap-2">
+                        {key}
+                        <span className={`h-2 w-2 rounded-full ${isAvailable ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              
               <div className="flex space-x-4">
                 <Button type="submit" className="flex-1">
                   <Search className="mr-2 h-4 w-4" />
