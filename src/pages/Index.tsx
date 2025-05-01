@@ -5,10 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, ArrowRight, MessageSquare } from "lucide-react";
+import { ModelResponse } from "@/components/ModelResponse";
+import { useAIOrchestrator } from "@/hooks/use-ai-orchestrator";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
+  const {
+    loading,
+    processingStage,
+    modelResponse,
+    summaryPoints,
+    tacticalSummary,
+    processQuery,
+    handleActionSelection,
+  } = useAIOrchestrator();
   
   const handleSubmitPrompt = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +32,17 @@ const Index = () => {
     // Handle prompt submission - for now just show a toast
     toast.success("Prompt submitted: " + prompt);
     console.log("Prompt submitted:", prompt);
+  };
+
+  const handlePingPong = () => {
+    if (!prompt.trim()) {
+      toast.error("Please enter a prompt first");
+      return;
+    }
+    
+    // Process the query using the AI Orchestrator
+    processQuery(prompt);
+    toast.success("Processing your prompt through AI models...");
   };
 
   return (
@@ -46,13 +68,80 @@ const Index = () => {
                   className="flex-1"
                 />
               </div>
-              <Button type="submit" className="w-full">
-                <Search className="mr-2 h-4 w-4" />
-                Submit Prompt
-              </Button>
+              <div className="flex space-x-4">
+                <Button type="submit" className="flex-1">
+                  <Search className="mr-2 h-4 w-4" />
+                  Submit Prompt
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={handlePingPong} 
+                  variant="secondary" 
+                  className="flex-1"
+                  disabled={loading}
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Ping-Pong AI
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
+        
+        {processingStage !== 'idle' && (
+          <div className="mt-6 max-w-3xl mx-auto">
+            <ModelResponse 
+              modelResponse={modelResponse} 
+              summaryPoints={summaryPoints} 
+              tacticalSummary={tacticalSummary} 
+            />
+            
+            {processingStage === 'responseReceived' && (
+              <Card className="mb-6">
+                <CardContent className="pt-6">
+                  <h3 className="font-medium mb-4">Next Actions:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleActionSelection('refine')}
+                      disabled={loading}
+                    >
+                      Refine Prompt
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleActionSelection('goDeep')}
+                      disabled={loading}
+                    >
+                      Go Deeper
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleActionSelection('sendToGemini')}
+                      disabled={loading}
+                    >
+                      Send to Gemini
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleActionSelection('sendToNick')}
+                      disabled={loading}
+                    >
+                      Send to Nick
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleActionSelection('email')}
+                      disabled={loading}
+                    >
+                      Email Summary
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
         
         <div className="mt-6">
           <p>Navigate to the Software page to manage your API keys.</p>
