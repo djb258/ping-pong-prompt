@@ -7,6 +7,7 @@ import { useAIOrchestrator } from "@/hooks/use-ai-orchestrator";
 import { ActionOptions } from "@/components/ActionOptions";
 import AIModelsCard from "@/components/AIModelsCard";
 import PromptForm from "@/components/PromptForm";
+import PingPongExchangesList from "@/components/PingPongExchangesList";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
@@ -23,6 +24,22 @@ const Index = () => {
     availableModels,
   } = useAIOrchestrator();
   
+  // Mock data for ping-pong exchanges (replace with actual Firebase data when connected)
+  const mockExchanges = [
+    {
+      id: "1",
+      input_prompt: "What is the capital of France?",
+      output_response: "The capital of France is Paris. Paris is the largest city in France and serves as the country's political, economic, and cultural center.",
+      timestamp_last_touched: "2024-06-13T10:30:00Z"
+    },
+    {
+      id: "2", 
+      input_prompt: "Explain quantum computing in simple terms",
+      output_response: "Quantum computing is a type of computing that uses quantum mechanical phenomena to process information. Unlike classical computers that use bits (0 or 1), quantum computers use quantum bits or 'qubits' that can exist in multiple states simultaneously.",
+      timestamp_last_touched: "2024-06-13T09:15:00Z"
+    }
+  ];
+  
   const handleSubmitPrompt = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -31,7 +48,18 @@ const Index = () => {
       return;
     }
     
-    toast.success("Prompt submitted: " + prompt);
+    // TODO: Replace with actual Firebase write when Supabase is connected
+    console.log("Writing to agent_task collection:", {
+      agent_id: "mindpal",
+      process_id: "pingpong_001", 
+      blueprint_id: "pingpong_prompt_001",
+      input_prompt: prompt,
+      output_response: null,
+      validated: false,
+      timestamp_last_touched: new Date().toISOString()
+    });
+    
+    toast.success("Prompt submitted to agent_task collection!");
     console.log("Prompt submitted:", prompt);
   };
 
@@ -97,8 +125,13 @@ const Index = () => {
           </div>
         )}
         
+        <PingPongExchangesList exchanges={mockExchanges} />
+        
         <div className="mt-6">
           <p>Navigate to the Software page to manage your API keys.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Note: To connect to Firebase and display real ping-pong exchanges, please connect your project to Supabase first.
+          </p>
         </div>
       </div>
     </div>
