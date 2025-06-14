@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
@@ -8,6 +7,7 @@ import { ActionOptions } from "@/components/ActionOptions";
 import AIModelsCard from "@/components/AIModelsCard";
 import PromptForm from "@/components/PromptForm";
 import PingPongExchangesList from "@/components/PingPongExchangesList";
+import PingPongPrompt from "@/components/PingPongPrompt";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
@@ -125,12 +125,16 @@ const Index = () => {
           </div>
         )}
         
+        <div className="mt-8">
+          <PingPongPrompt />
+        </div>
+        
         <PingPongExchangesList exchanges={mockExchanges} />
         
         <div className="mt-6">
           <p>Navigate to the Software page to manage your API keys.</p>
           <p className="text-sm text-muted-foreground mt-2">
-            Note: To connect to Firebase and display real ping-pong exchanges, please connect your project to Supabase first.
+            Note: Please update the Firebase configuration in src/lib/firebase.ts with your actual Firebase project credentials.
           </p>
         </div>
       </div>
