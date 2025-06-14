@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import AddApiKeyForm from "@/components/api-key/AddApiKeyForm";
@@ -9,6 +9,25 @@ import { checkApiKey, refreshApiKey } from "@/services/apiKeyService";
 
 const Software = () => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+
+  // Load API keys from localStorage on component mount
+  useEffect(() => {
+    const storedKeys = localStorage.getItem('apiKeys');
+    if (storedKeys) {
+      try {
+        const parsedKeys = JSON.parse(storedKeys);
+        setApiKeys(parsedKeys);
+      } catch (error) {
+        console.error('Error parsing stored API keys:', error);
+      }
+    }
+  }, []);
+
+  // Save API keys to localStorage whenever apiKeys state changes
+  useEffect(() => {
+    localStorage.setItem('apiKeys', JSON.stringify(apiKeys));
+    console.log('Saved API keys to localStorage:', apiKeys);
+  }, [apiKeys]);
 
   const handleAddApiKey = (newKey: ApiKey) => {
     setApiKeys([...apiKeys, newKey]);
