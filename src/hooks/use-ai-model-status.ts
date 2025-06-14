@@ -10,23 +10,70 @@ export const useAIModelStatus = () => {
     gemini: false,
   });
 
-  // Load API keys on mount - in a real app, this would check stored API keys
+  // Check API keys from localStorage and update model availability
   useEffect(() => {
-    // Simulate retrieving and checking API keys
-    const checkApiKeys = async () => {
-      // This would actually fetch from localStorage, API, or context in a real app
-      // Changed to show all services as initially disconnected until API keys are added
-      const mockApiStatus = {
-        chatgpt: false,
-        perplexity: false,
-        claude: false, 
-        gemini: false,
-      };
+    const checkApiKeys = () => {
+      const storedKeys = localStorage.getItem('apiKeys');
       
-      setAvailableModels(mockApiStatus);
+      if (storedKeys) {
+        try {
+          const apiKeys = JSON.parse(storedKeys);
+          const modelStatus: ModelAvailability = {
+            chatgpt: false,
+            perplexity: false,
+            claude: false,
+            gemini: false,
+          };
+
+          // Check each API key and map to model availability
+          apiKeys.forEach((keyObj: any) => {
+            if (keyObj.key && keyObj.key.trim()) {
+              const keyName = keyObj.name.toLowerCase();
+              
+              if (keyName.includes('openai') || keyName.includes('chatgpt') || keyName.includes('gpt')) {
+                modelStatus.chatgpt = true;
+              } else if (keyName.includes('perplexity')) {
+                modelStatus.perplexity = true;
+              } else if (keyName.includes('claude') || keyName.includes('anthropic')) {
+                modelStatus.claude = true;
+              } else if (keyName.includes('gemini') || keyName.includes('google')) {
+                modelStatus.gemini = true;
+              }
+            }
+          });
+
+          setAvailableModels(modelStatus);
+        } catch (error) {
+          console.error('Error parsing API keys:', error);
+          setAvailableModels({
+            chatgpt: false,
+            perplexity: false,
+            claude: false,
+            gemini: false,
+          });
+        }
+      }
     };
     
+    // Check on mount
     checkApiKeys();
+    
+    // Listen for storage changes to update when keys are added/removed
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'apiKeys') {
+        checkApiKeys();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically in case localStorage is updated in the same tab
+    const interval = setInterval(checkApiKeys, 2000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
   return {
