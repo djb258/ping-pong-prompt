@@ -8,6 +8,7 @@ import AIModelsCard from "@/components/AIModelsCard";
 import PromptForm from "@/components/PromptForm";
 import PingPongExchangesList from "@/components/PingPongExchangesList";
 import PingPongPrompt from "@/components/PingPongPrompt";
+import PromptRefiner from "@/components/PromptRefiner";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
@@ -124,6 +125,13 @@ const Index = () => {
             )}
           </div>
         )}
+        
+        <div className="mt-8">
+          <PromptRefiner onRefinedPromptReady={(refinedPrompt) => {
+            console.log('Refined prompt ready:', refinedPrompt);
+            toast.success('Refined prompt is ready for use!');
+          }} />
+        </div>
         
         <div className="mt-8">
           <PingPongPrompt />
