@@ -14,10 +14,13 @@ export const useAIModelStatus = () => {
   useEffect(() => {
     const checkApiKeys = () => {
       const storedKeys = localStorage.getItem('apiKeys');
+      console.log('Stored API keys:', storedKeys);
       
       if (storedKeys) {
         try {
           const apiKeys = JSON.parse(storedKeys);
+          console.log('Parsed API keys:', apiKeys);
+          
           const modelStatus: ModelAvailability = {
             chatgpt: false,
             perplexity: false,
@@ -26,22 +29,31 @@ export const useAIModelStatus = () => {
           };
 
           // Check each API key and map to model availability
-          apiKeys.forEach((keyObj: any) => {
-            if (keyObj.key && keyObj.key.trim()) {
-              const keyName = keyObj.name.toLowerCase();
-              
-              if (keyName.includes('openai') || keyName.includes('chatgpt') || keyName.includes('gpt')) {
-                modelStatus.chatgpt = true;
-              } else if (keyName.includes('perplexity')) {
-                modelStatus.perplexity = true;
-              } else if (keyName.includes('claude') || keyName.includes('anthropic')) {
-                modelStatus.claude = true;
-              } else if (keyName.includes('gemini') || keyName.includes('google')) {
-                modelStatus.gemini = true;
+          if (Array.isArray(apiKeys)) {
+            apiKeys.forEach((keyObj: any) => {
+              console.log('Processing key object:', keyObj);
+              if (keyObj.key && keyObj.key.trim()) {
+                const keyName = keyObj.name ? keyObj.name.toLowerCase() : '';
+                console.log('Key name (lowercase):', keyName);
+                
+                if (keyName.includes('openai') || keyName.includes('chatgpt') || keyName.includes('gpt')) {
+                  modelStatus.chatgpt = true;
+                  console.log('Set ChatGPT to true');
+                } else if (keyName.includes('perplexity')) {
+                  modelStatus.perplexity = true;
+                  console.log('Set Perplexity to true');
+                } else if (keyName.includes('claude') || keyName.includes('anthropic')) {
+                  modelStatus.claude = true;
+                  console.log('Set Claude to true');
+                } else if (keyName.includes('gemini') || keyName.includes('google')) {
+                  modelStatus.gemini = true;
+                  console.log('Set Gemini to true');
+                }
               }
-            }
-          });
+            });
+          }
 
+          console.log('Final model status:', modelStatus);
           setAvailableModels(modelStatus);
         } catch (error) {
           console.error('Error parsing API keys:', error);
@@ -52,6 +64,14 @@ export const useAIModelStatus = () => {
             gemini: false,
           });
         }
+      } else {
+        console.log('No API keys found in localStorage');
+        setAvailableModels({
+          chatgpt: false,
+          perplexity: false,
+          claude: false,
+          gemini: false,
+        });
       }
     };
     
@@ -61,6 +81,7 @@ export const useAIModelStatus = () => {
     // Listen for storage changes to update when keys are added/removed
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'apiKeys') {
+        console.log('Storage change detected for apiKeys');
         checkApiKeys();
       }
     };
