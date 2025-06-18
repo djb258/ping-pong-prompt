@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import PromptForm from "@/components/PromptForm";
 import PingPongExchangesList from "@/components/PingPongExchangesList";
 import PingPongPrompt from "@/components/PingPongPrompt";
 import PromptRefiner from "@/components/PromptRefiner";
+import RenderPingPong from "@/components/RenderPingPong";
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
@@ -125,6 +127,10 @@ const Index = () => {
             )}
           </div>
         )}
+        
+        <div className="mt-8">
+          <RenderPingPong />
+        </div>
         
         <div className="mt-8">
           <PromptRefiner onRefinedPromptReady={(refinedPrompt) => {
